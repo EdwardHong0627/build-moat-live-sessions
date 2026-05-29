@@ -1,0 +1,10 @@
+/Users/huaichehong/system design/build-moat-live-sessions/qr_code_generator/rust/target/debug/deps/bitstream_io-0e68f16c7a258560.d: /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/lib.rs /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/huffman.rs /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/read.rs /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/write.rs
+
+/Users/huaichehong/system design/build-moat-live-sessions/qr_code_generator/rust/target/debug/deps/libbitstream_io-0e68f16c7a258560.rlib: /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/lib.rs /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/huffman.rs /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/read.rs /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/write.rs
+
+/Users/huaichehong/system design/build-moat-live-sessions/qr_code_generator/rust/target/debug/deps/libbitstream_io-0e68f16c7a258560.rmeta: /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/lib.rs /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/huffman.rs /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/read.rs /Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/write.rs
+
+/Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/lib.rs:
+/Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/huffman.rs:
+/Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/read.rs:
+/Users/huaichehong/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bitstream-io-4.10.0/src/write.rs:

@@ -15,7 +15,9 @@ Build a dynamic QR code system where:
 
 Answer these before you start coding:
 
-1. **Static vs Dynamic QR Code:** Why does this system use dynamic QR codes (encode short URL) instead of static (encode original URL directly)? When would you choose static instead?
+1. **Static vs Dynamic QR Code:** Why does this system use dynamic QR codes (encode short URL) instead of static (encode original URL directly)? When would you choose static instead? 
+  Because the requirement said that user can change the target URL.
+  
 
 2. **Token Generation:** How will you generate short URL tokens? What happens when two different URLs produce the same token? How does collision probability change as the number of tokens grows?
 
