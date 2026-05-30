@@ -38,13 +38,98 @@ This is the traditional RAG path: semantic retrieval with embeddings and a vecto
 Answer these before you start coding:
 
 1. Which retrieval strategy did you choose, and why?
+
+   **Strategy A: Markdown KB (BM25 over heading sections).** At this scale (a handful
+   of `.md` files), it is the right default: smallest dependency surface, no embedding
+   API calls on `/index` or per `/chat` query (so lower cost and latency), and a fully
+   inspectable `.kb/index.json`. The corpus is short, factual FAQ-style content where
+   the user's vocabulary closely matches the docs ("refund", "email", "shipping"), which
+   is exactly where keyword search shines. Crucially, it keeps the system debuggable: when
+   an answer is wrong I can read the index and the matched section directly instead of
+   reasoning about an opaque embedding space. Vector RAG is kept as the documented
+   migration path for when semantic matching becomes necessary (see Q6).
+
 2. What is the retrieval unit in your design: file, section, or chunk?
+
+   **The heading section.** Each document is split on Markdown headings into
+   `(filename, heading, body)` records, and the section is both the unit that gets indexed
+   and the unit that gets retrieved. This matches the citation contract (`filename#heading`)
+   one-to-one, so every retrieved unit can be cited without further bookkeeping. A section
+   is large enough to be self-contained and answerable, but small enough to keep irrelevant
+   text out of the prompt. Files are too coarse (they mix unrelated topics — e.g.
+   `refund_policy.md` covers cancellation, timeline, and non-refundable items); arbitrary
+   fixed-size chunks are unnecessary here because the docs are already short and the headings
+   provide natural, human-meaningful boundaries.
+
 3. How do you decide what goes into the prompt?
+
+   Rank all sections by BM25 against the query, take the top-k (small, e.g. k=3–5), and
+   apply a score floor (see Q5). The selected sections' raw Markdown — each prefixed with
+   its `filename#heading` source label — is concatenated into a bounded context block. The
+   system prompt instructs the model to answer **only** from the provided sections, to cite
+   the sections it used, and to say it cannot confirm if the context does not contain the
+   answer. Raw Markdown is passed through unmodified (no summarization) so the model and a
+   human auditor see exactly the same text. The query is held constant; only the retrieved
+   context varies, which keeps behavior reproducible.
+
 4. How do you cite sources so users can inspect the original Markdown?
+
+   Each indexed section carries its origin as `filename#heading`, where the heading is
+   slugified to match the doc (e.g. `refund_policy.md#refund-timeline`,
+   `account_help.md#change-email-address`). That label is attached to the section in the
+   context block, the model is required to cite using it, and the API returns the selected
+   sources alongside the answer. Because the citation is just the file plus the heading slug,
+   a user can open the original `.md` and jump straight to the cited heading — the citation
+   is a verifiable pointer into the canonical source, not a paraphrase.
+
 5. What should happen when retrieval finds weak or irrelevant results?
+
+   Apply a retrieval **score threshold**. If the best section's score is below the floor (or
+   no section clears it), the system does **not** force a citation — it returns an honest
+   "I cannot confirm that from the knowledge base" answer with no fabricated source. This is
+   the same path used for genuinely out-of-scope questions (e.g. "Which restaurants are
+   nearby?"). Grounding takes priority over helpfulness: a confident wrong answer with a
+   bogus citation is worse than admitting the KB does not cover the question. The threshold
+   is tunable and should be calibrated against the sample docs so in-scope questions clear it
+   and off-topic ones do not.
+
 6. When would you switch from Markdown KB to Vector RAG?
+
+   When **lexical matching starts missing answers that are actually in the KB** — i.e. when
+   users phrase questions with different vocabulary than the docs (synonyms, paraphrases,
+   conceptual queries like "how do I get my money back?" vs. a doc titled "Refund Timeline").
+   Concretely: rising "cannot confirm" rates on questions the KB does cover, or a paraphrase
+   comparison showing BM25 synonym misses. Other triggers: the corpus grows large and diverse
+   enough that keyword overlap is no longer a reliable relevance signal, or content shifts
+   from short factual FAQs toward longer prose where semantic similarity beats term frequency.
+
 7. When would you switch from Vector RAG back to a Markdown index?
+
+   When the cost, latency, and opacity of embeddings stop paying for themselves. Specifically:
+   the corpus is small and vocabulary-aligned (keyword search already retrieves correctly);
+   embedding API cost or per-query latency is unacceptable; the team needs an inspectable,
+   diff-able, version-controllable index (`.kb/index.json`) for debugging and auditing; or
+   answers must be exactly traceable to a heading and semantic false positives (confidently
+   retrieving the wrong-but-similar section) are hurting trust. In short, switch back when
+   the data is small and exact, and explainability matters more than semantic recall.
+
 8. If the knowledge base grows from 10 files to 100,000 files, what changes?
+
+   - **Index storage & loading:** a single in-memory `.kb/index.json` no longer scales —
+     move to a persisted, queryable store (a real search engine for BM25, or a vector
+     database for embeddings) instead of loading the whole index on startup.
+   - **Retrieval algorithm:** linear scoring over every section becomes too slow; need
+     inverted indexes / ANN (e.g. FAISS) so query time grows sub-linearly with corpus size.
+   - **Strategy:** at this scale semantic retrieval (Strategy B), or a **hybrid** of BM25 +
+     vector search with a re-ranking stage, becomes worthwhile — lexical-only recall degrades
+     across a large, diverse corpus.
+   - **Indexing pipeline:** full re-index on every `/index` is infeasible; move to
+     **incremental/streaming indexing** (only changed files), with chunking for long docs and
+     batched embedding calls.
+   - **Operational concerns:** index build cost and time, embedding spend, memory footprint,
+     concurrency during re-index, and freshness/invalidation all become first-class design
+     problems rather than afterthoughts. Citation granularity (`filename#heading`) still holds,
+     but heading slugs must be guaranteed unique across 100k files.
 
 ## Verification
 

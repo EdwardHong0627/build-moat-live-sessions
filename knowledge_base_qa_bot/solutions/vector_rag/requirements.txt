@@ -1,0 +1,7 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+langchain-openai>=0.1.7   # ChatOpenAI + OpenAIEmbeddings (pulls langchain-core + openai)
+python-dotenv>=1.0        # loads OPENAI_API_KEY from .env
+faiss-cpu>=1.8
+numpy>=1.26
